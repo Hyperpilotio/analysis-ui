@@ -1,0 +1,58 @@
+
+.ClusterList {}
+
+.ClusterList h2 {
+  font-size: 18px;
+  color: #54585e;
+  text-transform: lowercase;
+  line-height: 20px;
+  font-family: Freight Sans Small Caps,Verdana,Geneva,sans-serif;
+  margin-bottom: 10px;
+  font-weight: 400;
+  display: block;
+}
+
+.ClusterList ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ClusterListItem {
+  align-items: center;
+  line-height: 29px;
+  margin-bottom: 5px;
+  position: relative;
+  transition: opacity .1s ease-in-out;
+}
+
+.ClusterListItem--is-active {
+  background-color: #fff;
+  box-shadow: 0 1px 0 rgba(0,0,0,.05);
+}
+
+.ClusterListItem a {
+  display: block;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-family: Freight Sans Small Caps,Verdana,Geneva,sans-serif;
+  text-transform: lowercase;
+  font-size: 16px;
+  font-weight: 400;
+  color: #707479;
+  height: 100%;
+}
+
+.ClusterListItem--is-active a {
+  color: #3cc76a;
+  border-color: #3cc76a;
+}
+
+.ClusterListItem a:hover {
+  background-color: #fff;
+  text-decoration: none;
+  color: #3cc76a;
+  border-color: rgba(183,189,196,.5);
+}
