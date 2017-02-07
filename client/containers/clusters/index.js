@@ -9,7 +9,7 @@ import ErrorMessage from '../../components/error-message';
 import Sidebar from '../../components/sidebar';
 import ServiceList from '../../components/service-list';
 import NodeList from '../../components/node-list';
-import Service from '../service';
+import Node from '../node';
 
 export default class ClustersContainer extends Component {
   constructor(props, context) {
@@ -17,8 +17,7 @@ export default class ClustersContainer extends Component {
     this.state = {
       error: null,
       clusters: [],
-      activeClusterName: null,
-      activeClusterNode: null
+      activeClusterName: null
     };
   }
 
@@ -49,7 +48,7 @@ export default class ClustersContainer extends Component {
             activeClusterName={activeClusterName}
             region={this.state.searchTerm} />
         </Loader>
-        {this.renderServiceSheet()}
+        {this.renderNodeSheet()}
       </Page>
     )
   }
@@ -91,13 +90,14 @@ export default class ClustersContainer extends Component {
    * Render the service sheet.
    */
 
-  renderServiceSheet() {
-    const serviceName = this.props.params.serviceName;
-    if (!serviceName) return null;
-    const service = this.getByName('service', serviceName);
-    if (!service) return null;
-    // TODO: if no matching service is found, show an error
-    return <Service service={service} />
+  renderNodeSheet() {
+    const nodeInstanceId = this.props.params.nodeInstanceId;
+    if (!nodeInstanceId) return null;
+    const node = this.getNodeByInstanceId(nodeInstanceId);
+    if (!node) return null;
+    const clusterName = this.props.params.clusterName;
+    // TODO: if no matching node is found, show an error
+    return <Node node={node} clusterName={clusterName}/>
   }
 
   /**
@@ -121,6 +121,24 @@ export default class ClustersContainer extends Component {
       const item = items[i].Clusters;
       if (item[prop] === name) {
         return item;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Get node instance by instanceId.
+   */
+
+  getNodeByInstanceId(instanceId) {
+    const items = this.state.clusters;
+    for (let i = 0; i < items.length; i++) {
+      const nodeInfos = items[i].Clusters.NodeInfos;
+      for (let key in nodeInfos) {
+        if (nodeInfos[key].Instance.InstanceId === instanceId) {
+          return nodeInfos[key];
+        }
       }
     }
 

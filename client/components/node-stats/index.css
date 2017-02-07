@@ -1,0 +1,30 @@
+
+.NodeStats {}
+
+.NodeStats table {
+  font-size: 16px;
+  color: #54585E;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.NodeStats th {
+  text-align: right;
+  font-weight: 500;
+  width: 38%;
+}
+
+.NodeStats td {
+  text-align: left;
+  padding-left: 7px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+.NodeStats--left-aligned th {
+  text-align: left;
+  font-weight: 500;
+  width: 80px;
+}

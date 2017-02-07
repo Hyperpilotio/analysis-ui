@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import classname from 'classname';
 import { Link } from 'react-router';
+import NodeStats from '../node-stats';
 import styles from './index.css';
 
 export default class NodeList extends Component {
@@ -14,12 +15,12 @@ export default class NodeList extends Component {
     );
   }
 
-  renderNodeItem(item, n) {
+  renderNodeItem(node, n) {
     return (
-      <li key={n + '/' + item.PublicDnsName} className={styles.NodeListItem}>
-        <Link to={item ? `/${this.props.activeClusterName}` : '/'}>
-          <h3>{item.PublicDnsName}</h3>
-          {/*<ServiceStats service={service} />*/}
+      <li key={n + '/' + node.PublicDnsName} className={styles.NodeListItem}>
+        <Link to={node ? `/${this.props.activeClusterName}/${node.Instance.InstanceId}` : '/'}>
+          <h3>{node.PublicDnsName}</h3>
+          <NodeStats node={node} />
         </Link>
       </li>
     );

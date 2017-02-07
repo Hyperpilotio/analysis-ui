@@ -7,9 +7,7 @@ import styles from './index.css';
 export default class ServiceStats extends Component {
   render() {
     const { service } = this.props;
-    const { runningCount, desiredCount } = service;
-    const { image } = service.task.containerDefinitions[0];
-    const updated = moment(service.deployments[0].updatedAt).fromNow();
+    const taskDefinition = service.TaskDefinition.split('task-definition/')[1];
     const classes = classname({
       [styles.ServiceStats]: true,
       [styles['ServiceStats--left-aligned']]: this.props.left
@@ -19,16 +17,8 @@ export default class ServiceStats extends Component {
         <table>
           <tbody>
             <tr>
-              <th>Image</th>
-              <td>{image}</td>
-            </tr>
-            <tr>
-              <th>Running</th>
-              <td>{runningCount} out of {desiredCount}</td>
-            </tr>
-            <tr>
-              <th>Updated</th>
-              <td>{updated}</td>
+              <th>task def</th>
+              <td>{taskDefinition}</td>
             </tr>
           </tbody>
         </table>
