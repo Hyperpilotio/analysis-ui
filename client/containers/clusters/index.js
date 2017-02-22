@@ -164,11 +164,16 @@ export default class ClustersContainer extends Component {
         let clustersObj = {};
         clustersObj.Region = deps[i].Region;
 
-        for (let j = 0; j < deps[i].Clusters.length; j++) {
-          clustersArray.push(Object.assign(
-            {}, clustersObj, { Clusters: deps[i].Clusters[j] }
-          ));
-        }     
+        for (let cluster of deps[i].Clusters) {
+          if (cluster.Services.length !== 0 &&
+              Object.keys(cluster.NodeInfos).length !== 0) {
+
+            clustersArray.push(Object.assign(
+              {}, clustersObj, { Clusters: cluster }
+            ));
+
+          }
+        }
       }
 
       this.setState({
