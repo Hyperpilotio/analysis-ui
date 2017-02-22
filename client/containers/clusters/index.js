@@ -17,7 +17,8 @@ export default class ClustersContainer extends Component {
     this.state = {
       error: null,
       clusters: [],
-      activeClusterName: null
+      activeClusterName: null,
+      currentTimeout: null
     };
   }
 
@@ -149,7 +150,7 @@ export default class ClustersContainer extends Component {
    * Fetch data.
    */
 
-  componentDidMount() {
+  fetchClustersData(nextFetchTimeout) {
     request
     .get('/api/clusters')
     .end(function(err, res) {
@@ -174,6 +175,21 @@ export default class ClustersContainer extends Component {
         clusters: clustersArray
       });
 
+      if (nextFetchTimeout) {
+        const timeout = setTimeout(
+          this.fetchClustersData.bind(this, nextFetchTimeout),
+          nextFetchTimeout
+        );
+        this.setState({
+          currentTimeout: timeout
+        });
+      }
+
     }.bind(this));
+  }
+
+  componentDidMount() {
+    // TODO: Customizable interval time
+    this.fetchClustersData(30 * 1000);
   }
 };
