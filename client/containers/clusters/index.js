@@ -8,6 +8,7 @@ import Page from '../../components/page';
 import ErrorMessage from '../../components/error-message';
 import Sidebar from '../../components/sidebar';
 import ServiceList from '../../components/service-list';
+import ContainerList from '../../components/container-list';
 import NodeList from '../../components/node-list';
 import Node from '../node';
 import Influx from 'influx';
@@ -42,6 +43,10 @@ export default class ClustersContainer extends Component {
         <Loader loaded={isLoading} color="#3cc76a">
           {this.renderError()}
           <ServiceList
+            clusters={this.state.clusters}
+            activeClusterName={activeClusterName}
+            region={this.state.searchTerm} />
+          <ContainerList
             clusters={this.state.clusters}
             activeClusterName={activeClusterName}
             region={this.state.searchTerm} />
@@ -195,7 +200,9 @@ export default class ClustersContainer extends Component {
                     let taskName = task.TaskDefinitionArn.slice(
                       task.TaskDefinitionArn.lastIndexOf("/") + 1
                     ).replace(":", "-");
-                    container.dockerNamePrefix = `/ecs-${taskName}-${container.Name}-`;
+                    container.DisplayName = `${taskName}:${container.Name}`;
+                    container.DockerNamePrefix = `/ecs-${taskName}-${container.Name}-`;
+                    container.ResourceId = container.ContainerArn.split("/")[1];
                   }
                 }
               }
