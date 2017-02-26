@@ -171,7 +171,7 @@ export default class ClustersContainer extends Component {
           if (cluster.Services.length !== 0 &&
               Object.keys(cluster.NodeInfos).length !== 0) {
 
-            // Try to get monitor's dns address
+            // Try to get monitor's DNS address
             let monitorTaskDefinitionArn;
             for (let service of cluster.Services) {
               if (service.ServiceName === "monitor-service")
@@ -180,8 +180,17 @@ export default class ClustersContainer extends Component {
             if (monitorTaskDefinitionArn) {
               for (let node of cluster.NodeInfos) {
                 for (let task of node.Tasks) {
+                  // Set monitor's DNS address if it is
                   if (task.TaskDefinitionArn === monitorTaskDefinitionArn)
                     cluster.MonitorDnsAddress = node.PublicDnsName;
+                  // Try to infer the prefix of docker container's name stored in db
+                  for (let container of task.Containers) {
+                    // XXX: Is this called task name? e.g. nginx:14, snap:26
+                    let taskName = task.TaskDefinitionArn.slice(
+                      task.TaskDefinitionArn.lastIndexOf("/") + 1
+                    ).replace(":", "-");
+                    container.dockerNamePrefix = `/ecs-${taskName}-${container.Name}-`;
+                  }
                 }
               }
             }
