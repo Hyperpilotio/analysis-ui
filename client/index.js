@@ -17,7 +17,8 @@ const app = (
   <Router history={browserHistory}>
     <Route path="/" component={ClustersContainer} />
     <Route path="/:clusterName" component={ClustersContainer} />
-    <Route path="/:clusterName/:nodeInstanceId" component={ClustersContainer} />
+    <Route path="/:clusterName/service/:serviceId" component={ClustersContainer} />
+    <Route path="/:clusterName/node/:nodeInstanceId" component={ClustersContainer} />
   </Router>
 );
 

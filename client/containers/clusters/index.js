@@ -10,6 +10,7 @@ import Sidebar from '../../components/sidebar';
 import ServiceList from '../../components/service-list';
 import NodeList from '../../components/node-list';
 import Node from '../node';
+import Influx from 'influx';
 
 export default class ClustersContainer extends Component {
   constructor(props, context) {
@@ -181,8 +182,13 @@ export default class ClustersContainer extends Component {
               for (let node of cluster.NodeInfos) {
                 for (let task of node.Tasks) {
                   // Set monitor's DNS address if it is
-                  if (task.TaskDefinitionArn === monitorTaskDefinitionArn)
+                  if (task.TaskDefinitionArn === monitorTaskDefinitionArn) {
                     cluster.MonitorDnsAddress = node.PublicDnsName;
+                    cluster.Influx = new Influx.InfluxDB({
+                      host: cluster.MonitorDnsAddress,
+                      database: "snap"
+                    });
+                  }
                   // Try to infer the prefix of docker container's name stored in db
                   for (let container of task.Containers) {
                     // XXX: Is this called task name? e.g. nginx:14, snap:26
