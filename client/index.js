@@ -18,6 +18,7 @@ const app = (
     <Route path="/" component={ClustersContainer} />
     <Route path="/:clusterName" component={ClustersContainer} />
     <Route path="/:clusterName/service/:serviceId" component={ClustersContainer} />
+    <Route path="/:clusterName/container/:containerId" component={ClustersContainer} />
     <Route path="/:clusterName/node/:nodeInstanceId" component={ClustersContainer} />
   </Router>
 );

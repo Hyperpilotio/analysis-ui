@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import classname from 'classname';
 import { Link } from 'react-router';
 // import NodeStats from '../node-stats';
-import styles from './service.css';
+import styles from './index.css';
 
 export default class ContainerList extends Component {
   render() {
