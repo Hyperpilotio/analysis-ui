@@ -159,14 +159,32 @@ export default class ClustersContainer extends Component {
       }
 
       const deps = res.body;
+
+      // Flatten the Clusters from query result
       let clustersArray = [];
       for (let i = 0; i < deps.length; i++) {
         let clustersObj = {};
         clustersObj.Region = deps[i].Region;
 
         for (let cluster of deps[i].Clusters) {
+
           if (cluster.Services.length !== 0 &&
               Object.keys(cluster.NodeInfos).length !== 0) {
+
+            // Try to get monitor's dns address
+            let monitorTaskDefinitionArn;
+            for (let service of cluster.Services) {
+              if (service.ServiceName === "monitor-service")
+                monitorTaskDefinitionArn = service.TaskDefinition;
+            }
+            if (monitorTaskDefinitionArn) {
+              for (let node of cluster.NodeInfos) {
+                for (let task of node.Tasks) {
+                  if (task.TaskDefinitionArn === monitorTaskDefinitionArn)
+                    cluster.MonitorDnsAddress = node.PublicDnsName;
+                }
+              }
+            }
 
             clustersArray.push(Object.assign(
               {}, clustersObj, { Clusters: cluster }
