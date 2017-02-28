@@ -1,20 +1,20 @@
 
-.ServiceStats {}
+.ContainerStats {}
 
-.ServiceStats table {
+.ContainerStats table {
   font-size: 16px;
   color: #54585E;
   width: 100%;
   table-layout: fixed;
 }
 
-.ServiceStats th {
+.ContainerStats th {
   text-align: right;
   font-weight: 500;
   width: 38%;
 }
 
-.ServiceStats td {
+.ContainerStats td {
   text-align: left;
   padding-left: 7px;
   overflow: hidden;
@@ -23,7 +23,7 @@
 }
 
 
-.ServiceStats--left-aligned th {
+.ContainerStats--left-aligned th {
   text-align: left;
   font-weight: 500;
   width: 60px;

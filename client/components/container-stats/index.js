@@ -13,8 +13,8 @@ export default class ContainerStats extends Component {
     const totalCpu = container.stats.cpu_total_usage;
     const memoryUsage = container.stats.memory_usage;
     const classes = classname({
-      [styles.ServiceStats]: true,
-      [styles['ServiceStats--left-aligned']]: this.props.left
+      [styles.ContainerStats]: true,
+      [styles['ContainerStats--left-aligned']]: this.props.left
     });
     return (
       <div className={classes}>
