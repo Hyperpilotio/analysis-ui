@@ -20,6 +20,7 @@
     "co-defer": "^1.0.0",
     "co-monk": "^1.0.0",
     "debug": "^2.2.0",
+    "immutability-helper": "^2.1.2",
     "influx": "next",
     "kcors": "^1.0.1",
     "koa": "^1.1.2",
