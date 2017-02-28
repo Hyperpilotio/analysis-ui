@@ -6,6 +6,8 @@ import { Link } from 'react-router';
 import ContainerStats from '../container-stats';
 import styles from './index.css';
 
+// TODO: Make this a child of Services
+
 export default class ContainerList extends Component {
   constructor() {
     super();
@@ -25,7 +27,6 @@ export default class ContainerList extends Component {
             return ::this.renderContainerItem(cluster, container, n)
           }.bind(this));
         }.bind(this))}
-        {/*containers.map(::this.renderContainerItem)*/}
       </ul>
     );
   }
@@ -35,8 +36,18 @@ export default class ContainerList extends Component {
     for (let row of (this.state.influxData.docker_ids[cluster] || [])) {
       if (row.last_value.startsWith(container.DockerNamePrefix)) {
         container.stats.docker_id = row.docker_id;
+        break;
       }
     }
+    for (let stat in this.state.influxData) {
+      for (let row of (this.state.influxData[stat][cluster] || [])) {
+        if (row.docker_id === container.stats.docker_id) {
+          container.stats[stat] = row.last_value;
+          break
+        }
+      }
+    }
+
     return (
       <li key={`${n}/${container.ResourceId}`} className={styles.ContainerListItem}>
         <Link to={container ? `/${this.props.activeClusterName}/container/${container.ResourceId}` : '/'}>
@@ -53,7 +64,6 @@ export default class ContainerList extends Component {
     const activeClusterName = this.props.activeClusterName;
 
     let clustersByRegion = [];
-    // let clusterStats = [];
     if (activeClusterName) {
       if (region) {
         for (let cluster of clusters) {
@@ -66,10 +76,6 @@ export default class ContainerList extends Component {
           if (activeClusterName === cluster.Clusters.ClusterName) {
             clustersByRegion[`${cluster.Region}:${cluster.Clusters.ClusterName}`] =
               cluster.Clusters;
-            // clusterStats.push(cluster.Clusters.Influx.query`
-            //   SELECT last(*) FROM "intel/docker/spec/name"
-            //   WHERE value =~ /\/ecs-/ GROUP BY docker_id;
-            // `);
           }
         }
       }
@@ -86,6 +92,8 @@ export default class ContainerList extends Component {
         }
       }
       ::this.fetchDockerIds(cluster, clustersByRegion[cluster].Influx);
+      ::this.fetchTotalCpuUsage(cluster, clustersByRegion[cluster].Influx);
+      ::this.fetchMemoryUsage(cluster, clustersByRegion[cluster].Influx);
     }
 
     return containersByCluster;
@@ -100,6 +108,33 @@ export default class ContainerList extends Component {
       setting[cluster] = rows;
       this.setState(update(this.state, {
         influxData: {docker_ids: {$set: setting}}
+      }));
+    }.bind(this));
+  }
+
+  // TODO: Generalize query functions
+  fetchTotalCpuUsage(cluster, influx) {
+    influx.query`
+      SELECT last(*) FROM "intel/docker/stats/cgroups/cpu_stats/cpu_usage/total_usage"
+      GROUP BY docker_id;
+    `.then(function(rows) {
+      let setting = {};
+      setting[cluster] = rows;
+      this.setState(update(this.state, {
+        influxData: {cpu_total_usage: {$set: setting}}
+      }));
+    }.bind(this));
+  }
+
+  fetchMemoryUsage(cluster, influx) {
+    influx.query`
+      SELECT last(*) FROM "intel/docker/stats/cgroups/memory_stats/usage/usage"
+      GROUP BY docker_id;
+    `.then(function(rows) {
+      let setting = {};
+      setting[cluster] = rows;
+      this.setState(update(this.state, {
+        influxData: {memory_usage: {$set: setting}}
       }));
     }.bind(this));
   }
