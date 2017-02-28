@@ -83,14 +83,18 @@ export default class ContainerList extends Component {
 
     let containersByCluster = {};
     for (let cluster in clustersByRegion) {
-      containersByCluster[cluster] = [];
-      // TODO: Only show containers on the same node as snap
+      // Only show containers on the same node as snap
       for (let node of clustersByRegion[cluster].NodeInfos) {
         for (let task of node.Tasks) {
-          containersByCluster[cluster] =
-            containersByCluster[cluster].concat(task.Containers);
+          for (let container of task.Containers) {
+            if (container.Name === "snap") {
+              containersByCluster[cluster] = node.Tasks.reduce(
+                (containers, task) => containers.concat(task.Containers), []);
+            }
+          }
         }
       }
+      // XXX: Dirty: This should be generalized
       ::this.fetchDockerIds(cluster, clustersByRegion[cluster].Influx);
       ::this.fetchTotalCpuUsage(cluster, clustersByRegion[cluster].Influx);
       ::this.fetchMemoryUsage(cluster, clustersByRegion[cluster].Influx);
