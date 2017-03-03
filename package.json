@@ -18,7 +18,11 @@
     "bluebird": "^3.0.6",
     "chunk": "0.0.2",
     "co-defer": "^1.0.0",
+    "co-monk": "^1.0.0",
     "debug": "^2.2.0",
+    "filesize": "^3.5.5",
+    "immutability-helper": "^2.1.2",
+    "influx": "next",
     "kcors": "^1.0.1",
     "koa": "^1.1.2",
     "koa-logger": "^1.3.0",
@@ -28,7 +32,6 @@
     "lru-cache": "^4.0.1",
     "mongodb": "^2.2.22",
     "monk": "^3.1.4",
-    "co-monk": "^1.0.0",
     "ms": "^0.7.1"
   },
   "devDependencies": {

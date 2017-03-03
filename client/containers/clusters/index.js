@@ -8,8 +8,10 @@ import Page from '../../components/page';
 import ErrorMessage from '../../components/error-message';
 import Sidebar from '../../components/sidebar';
 import ServiceList from '../../components/service-list';
+import ContainerList from '../../components/container-list';
 import NodeList from '../../components/node-list';
 import Node from '../node';
+import Influx from 'influx';
 
 export default class ClustersContainer extends Component {
   constructor(props, context) {
@@ -17,7 +19,8 @@ export default class ClustersContainer extends Component {
     this.state = {
       error: null,
       clusters: [],
-      activeClusterName: null
+      activeClusterName: null,
+      currentTimeout: null
     };
   }
 
@@ -40,6 +43,10 @@ export default class ClustersContainer extends Component {
         <Loader loaded={isLoading} color="#3cc76a">
           {this.renderError()}
           <ServiceList
+            clusters={this.state.clusters}
+            activeClusterName={activeClusterName}
+            region={this.state.searchTerm} />
+          <ContainerList
             clusters={this.state.clusters}
             activeClusterName={activeClusterName}
             region={this.state.searchTerm} />
@@ -149,7 +156,7 @@ export default class ClustersContainer extends Component {
    * Fetch data.
    */
 
-  componentDidMount() {
+  fetchClustersData(nextFetchTimeout) {
     request
     .get('/api/clusters')
     .end(function(err, res) {
@@ -158,21 +165,76 @@ export default class ClustersContainer extends Component {
       }
 
       const deps = res.body;
+
+      // Flatten the Clusters from query result
       let clustersArray = [];
       for (let i = 0; i < deps.length; i++) {
         let clustersObj = {};
         clustersObj.Region = deps[i].Region;
 
-        for (let j = 0; j < deps[i].Clusters.length; j++) {
-          clustersObj.Clusters = deps[i].Clusters[j];
-          clustersArray.push(clustersObj);
-        }     
+        for (let cluster of deps[i].Clusters) {
+
+          if (cluster.Services.length !== 0 &&
+              Object.keys(cluster.NodeInfos).length !== 0) {
+
+            // Try to get monitor's DNS address
+            let monitorTaskDefinitionArn;
+            for (let service of cluster.Services) {
+              if (service.ServiceName === "monitor-service")
+                monitorTaskDefinitionArn = service.TaskDefinition;
+            }
+            if (monitorTaskDefinitionArn) {
+              for (let node of cluster.NodeInfos) {
+                for (let task of node.Tasks) {
+                  // Set monitor's DNS address if it is
+                  if (task.TaskDefinitionArn === monitorTaskDefinitionArn) {
+                    cluster.MonitorDnsAddress = node.PublicDnsName;
+                    cluster.Influx = new Influx.InfluxDB({
+                      host: cluster.MonitorDnsAddress,
+                      database: "snap"
+                    });
+                  }
+                  // Try to infer the prefix of docker container's name stored in db
+                  for (let container of task.Containers) {
+                    // XXX: Is this called task name? e.g. nginx:14, snap:26
+                    let taskName = task.TaskDefinitionArn.slice(
+                      task.TaskDefinitionArn.lastIndexOf("/") + 1
+                    ).replace(":", "-");
+                    container.DisplayName = `${taskName}:${container.Name}`;
+                    container.DockerNamePrefix = `/ecs-${taskName}-${container.Name}-`;
+                    container.ResourceId = container.ContainerArn.split("/")[1];
+                  }
+                }
+              }
+            }
+
+            clustersArray.push(Object.assign(
+              {}, clustersObj, { Clusters: cluster }
+            ));
+
+          }
+        }
       }
 
       this.setState({
         clusters: clustersArray
       });
 
+      if (nextFetchTimeout) {
+        const timeout = setTimeout(
+          this.fetchClustersData.bind(this, nextFetchTimeout),
+          nextFetchTimeout
+        );
+        this.setState({
+          currentTimeout: timeout
+        });
+      }
+
     }.bind(this));
+  }
+
+  componentDidMount() {
+    // TODO: Customizable interval time
+    this.fetchClustersData(30 * 1000);
   }
 };

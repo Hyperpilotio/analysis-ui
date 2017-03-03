@@ -18,7 +18,7 @@ export default class NodeList extends Component {
   renderNodeItem(node, n) {
     return (
       <li key={n + '/' + node.PublicDnsName} className={styles.NodeListItem}>
-        <Link to={node ? `/${this.props.activeClusterName}/${node.Instance.InstanceId}` : '/'}>
+        <Link to={node ? `/${this.props.activeClusterName}/node/${node.Instance.InstanceId}` : '/'}>
           <h3>{node.PublicDnsName}</h3>
           <NodeStats node={node} />
         </Link>
